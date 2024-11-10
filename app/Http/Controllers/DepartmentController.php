@@ -20,9 +20,12 @@ class DepartmentController extends Controller
     {
         $departments = Department::with('leader', 'majors')->get();
         // Truyền professors
+        // If role is department, get departmentID from username or role is admin, get all departments
+        $departmentID = auth()->user()->role === 'department' ? auth()->user()->username : null;
+        $departmentName = $departmentID ? Department::find($departmentID)->DepartmentName : null;
+        
 
-
-        return view('pdt.departments.index', compact('departments'));
+        return view('pdt.departments.index', compact('departments', 'departmentName'));
     }
 
     /**

@@ -4,88 +4,91 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
     .calendar th,
-.calendar td {
-    width: 14.28%;
-    vertical-align: top;
-    height: 150px;
-    border: 1px solid #dee2e6;
-    padding: 10px;
-}
+    .calendar td {
+        width: 14.28%;
+        vertical-align: top;
+        height: 150px;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+    }
 
-.calendar th {
-    background-color: #f8f9fa;
-    text-align: center;
-    font-weight: bold;
-}
+    .calendar th {
+        background-color: #f8f9fa;
+        text-align: center;
+        font-weight: bold;
+    }
 
-.date-number {
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #007bff;
-}
+    .date-number {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #007bff;
+    }
 
-.session {
-    background-color: #f1f1f1;
-    border-radius: 4px;
-    padding: 5px;
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    border-left: 3px solid #007bff;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
+    .session {
+        background-color: #f1f1f1;
+        border-radius: 4px;
+        padding: 5px;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+        border-left: 3px solid #007bff;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
 
-.session a {
-    margin-right: 5px;
-    font-size: 0.85em;
-}
+    .session a {
+        margin-right: 5px;
+        font-size: 0.85em;
+    }
 
-.session strong {
-    display: block;
-}
+    .session strong {
+        display: block;
+    }
 
-.text-muted {
-    color: #6c757d;
-    font-size: 0.9em;
-}
+    .text-muted {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+
+    /* Custom highlight for department leaders */
+    .highlight-leader {
+        background-color: #d1ecf1; /* Light blue background */
+    }
 </style>
 
 @endsection
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Professors</h2>
-        <a href="{{ route('department.professors.create') }}" class="btn btn-primary">Add Professor</a>
+        <h2>Thông tin giảng viên</h2>
+        <a href="{{ route('department.professors.create') }}" class="btn btn-primary">Thêm mới</a>
     </div>
 
     @if($professors->isEmpty())
-        <p>No professors found.</p>
+        <p>Không tìm thấy giảng viên</p>
     @else
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Professor ID</th>
-                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Họ và tên</th>
                     <th>Gmail</th>
-                    <th>Phone</th>
-                    <th>Is Leader Department</th>
-                    <th>Actions</th>
+                    <th>Số điện thoại</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($professors as $professor)
-                    <tr>
+                    <tr class="{{ $professor->isLeaderDepartment ? 'highlight-leader' : '' }}">
                         <td>{{ $professor->ProfessorID }}</td>
                         <td>{{ $professor->ProfessorName }}</td>
                         <td>{{ $professor->ProfessorGmail }}</td>
                         <td>{{ $professor->ProfessorPhone }}</td>
-                        <td>{{ $professor->isLeaderDepartment ? 'Yes' : 'No' }}</td>
                         <td>
-                            <a href="{{ route('department.professors.edit', $professor->ProfessorID) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('department.professors.edit', $professor->ProfessorID) }}" class="btn btn-sm btn-warning">Sửa</a>
                             <form action="{{ route('department.professors.destroy', $professor->ProfessorID) }}" method="POST" class="d-inline" 
-                                onsubmit="return confirm('Are you sure you want to delete this professor?');">
+                                onsubmit="return confirm('Bạn có chắc muốn xóa giảng viên này?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                             </form>
                         </td>
                     </tr>

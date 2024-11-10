@@ -1,16 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.pdt')
+
+@section('head')
     <title>Thêm Phòng Mới</title>
     <style>
-                body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
         }
+
         .container {
             width: 50%;
             margin: 20px auto;
@@ -27,6 +26,7 @@
 
         .form-group {
             margin-bottom: 15px;
+            width: 97%;
         }
 
         label {
@@ -58,8 +58,9 @@
             color: #233871;
         }
     </style>
-</head>
-<body>
+@endsection
+
+@section('content')
     <div class="container">
         <h1>Thêm Phòng Mới</h1>
         <form action="{{ route('pdt.rooms.store') }}" method="POST">
@@ -74,7 +75,5 @@
             </div>
             <button type="submit">Lưu</button>
         </form>
-        <a class="mr-2" href="{{ route('pdt.rooms.index') }}">Quay lại</a>
     </div>
-</body>
-</html>
+@endsection

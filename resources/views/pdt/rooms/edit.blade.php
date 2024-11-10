@@ -1,8 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.pdt')
+
+@section('head')
+    <!-- Thêm Bootstrap CSS nếu chưa có -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Sửa Phòng</title>
     <style>
@@ -53,8 +52,9 @@
             color: #233871;
         }
     </style>
-</head>
-<body>
+@endsection
+
+@section('content')
     <div class="container">
         <h1>Sửa Phòng</h1>
         <form action="{{ route('pdt.rooms.update', $room) }}" method="POST">
@@ -65,20 +65,10 @@
                 <input type="text" id="RoomID" name="RoomID" value="{{ $room->RoomID }}" readonly>
             </div>
             <div class="form-group">
-                <label for="floor">Tầng</label>
-                <input type="number" id="floor" name="floor" value="{{ $room->floor }}" required>
-            </div>
-            <div class="form-group">
-                <label for="building">Tòa Nhà</label>
-                <input type="text" id="building" name="building" value="{{ $room->building }}" required>
-            </div>
-            <div class="form-group">
                 <label for="scale">Sức Chứa</label>
                 <input type="number" id="scale" name="scale" value="{{ $room->scale }}" required>
             </div>
             <button type="submit">Cập Nhật</button>
         </form>
-        <a href="{{ route('pdt.rooms.index') }}">Quay lại</a>
     </div>
-</body>
-</html>
+@endsection

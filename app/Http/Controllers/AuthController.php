@@ -73,7 +73,7 @@ class AuthController extends Controller
 
         Auth::login($account);
 
-        return redirect('/dashboard')->with('success', 'Registration successful!');
+        return redirect('/login')->with('success', 'Registration successful!');
     }
 
     // Xử lý đăng xuất

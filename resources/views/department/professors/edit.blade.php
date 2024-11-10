@@ -52,11 +52,11 @@
 @endsection
 
 @section('content')
-    <h2>Edit Professor</h2>
+    <h2>Sửa thông tin giảng viên</h2>
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <strong>Đã xảy ra lỗi!</strong> Thông tin bạn nhập vào có vấn đề<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -70,7 +70,7 @@
         @method('PUT')
 
         <div class="mb-3">
-            <label for="ProfessorName" class="form-label">Professor Name</label>
+            <label for="ProfessorName" class="form-label">Họ và tên</label>
             <input type="text" name="ProfessorName" class="form-control" id="ProfessorName" value="{{ old('ProfessorName', $professor->ProfessorName) }}" required>
         </div>
 
@@ -80,11 +80,11 @@
         </div>
 
         <div class="mb-3">
-            <label for="ProfessorPhone" class="form-label">Phone</label>
+            <label for="ProfessorPhone" class="form-label">Số điện thoại</label>
             <input type="text" name="ProfessorPhone" class="form-control" id="ProfessorPhone" value="{{ old('ProfessorPhone', $professor->ProfessorPhone) }}" required>
         </div>
 
-        <button type="submit" class="btn btn-primary">Update Professor</button>
-        <a href="{{ route('department.professors.index') }}" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+        <a href="{{ route('department.professors.index') }}" class="btn btn-secondary">Trở về</a>
     </form>
 @endsection

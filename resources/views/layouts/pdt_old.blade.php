@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Phòng đào tạo</title>
+    <title>PDT Dashboard</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
         /* CSS tùy chỉnh */
         body {
@@ -174,51 +174,30 @@
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ route('pdt.departments.index') }}">Xin chào Admin</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pdt.departments.index') }}">Quản lý Khoa</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pdt.rooms.index') }}">Quản lý phòng học</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pdt.schedules.index') }}">Thời khóa biểu</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                        <a class="btn btn-outline-light" href="{{ route('logout') }}"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            Đăng xuất
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <header>
+        <h1>PDT Dashboard</h1>
+        <nav>
+            <a href="{{ route('pdt.departments.index') }}">Quản Lý Khoa</a>
+            <a href="{{ route('pdt.rooms.index') }}">Quản Lý Phòng</a>
+            <a href="{{ route('pdt.schedules.index') }}">Quản Lý Thời Khóa Biểu</a>
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Đăng Xuất</a>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+        </nav>
+    </header>
 
-    <!-- Container -->
     <div class="container">
-        <!-- Display Success and Error Messages -->
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
 
-        <!-- Content -->
         @yield('content')
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS (Optional) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    @yield('scripts')
 </body>
 </html>

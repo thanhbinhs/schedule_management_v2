@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,7 +124,7 @@
             position: absolute;
             right: 20px;
             border: none;
-            top:7px;
+            top: 7px;
 
         }
 
@@ -180,6 +181,7 @@
         }
     </style>
 </head>
+
 <body>
     <section class="login-page">
         <div class="login-container">
@@ -188,10 +190,20 @@
                 @csrf
                 <div class="form-content">
                     <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/af10241f5282ffaadf830072a3d5a25658e9776dc566b4d15126a12d96846ebf?placeholderIfAbsent=true&apiKey=a732e21b3afa4acd8291ecb50549d348" alt="Company Logo" class="logo" />
-                    
+                    @if(session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                    @endif
+
+                    @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                    @endif
                     <label for="username" class="input-label">Tên đăng nhập:</label>
                     <input type="text" id="username" name="username" class="input-field" placeholder="Nhập tên đăng nhập" required />
-    
+
                     <label for="password" class="input-label">Mật khẩu:</label>
                     <div class="password-container">
                         <input type="password" id="password" name="password" class="password-input" placeholder="Nhập mật khẩu" required />
@@ -199,12 +211,12 @@
                             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/c58a786a05ea30c9c075d43dba0ac61cf559a2065fea9130e59a905935445863?placeholderIfAbsent=true&apiKey=a732e21b3afa4acd8291ecb50549d348" alt="Toggle password visibility" />
                         </button>
                     </div>
-    
+
                     <div class="remember-login">
                         <input type="checkbox" id="remember" name="remember" class="checkbox" />
                         <label for="remember">Nhớ đăng nhập ?</label>
                     </div>
-    
+
                     <button type="submit" class="login-button">Đăng nhập</button>
                 </div>
             </form>
@@ -221,5 +233,7 @@
             }
         }
     </script>
+
 </body>
+
 </html>

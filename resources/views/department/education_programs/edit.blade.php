@@ -52,11 +52,11 @@
 @endsection
 
 @section('content')
-    <h2>Edit Education Program</h2>
+    <h2>Sửa thông tin chương trình đào tạo</h2>
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <strong>Đã xảy ra lỗi!</strong> Thông tin bạn nhập vào có vấn đề<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -70,15 +70,15 @@
         @method('PUT')
 
         <div class="mb-3">
-            <label for="EducationProgramName" class="form-label">Education Program Name</label>
+            <label for="EducationProgramName" class="form-label">Chương trình đào tạo</label>
             <input type="text" name="EducationProgramName" class="form-control" id="EducationProgramName" 
                 value="{{ old('EducationProgramName', $educationProgram->EducationProgramName) }}" required>
         </div>
 
         <div class="mb-3">
-            <label for="MajorID" class="form-label">Major</label>
+            <label for="MajorID" class="form-label">Ngành học</label>
             <select name="MajorID" id="MajorID" class="form-select" required>
-                <option value="">Select Major</option>
+                <option value="">Chọn ngành học</option>
                 @foreach($majors as $major)
                     <option value="{{ $major->MajorID }}" {{ (old('MajorID', $educationProgram->MajorID) == $major->MajorID) ? 'selected' : '' }}>
                         {{ $major->MajorName }}
@@ -88,7 +88,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="SubjectList" class="form-label">Subjects</label>
+            <label for="SubjectList" class="form-label">Môn học</label>
             <select name="SubjectList[]" id="SubjectList" class="form-select" multiple required>
                 @foreach($subjects as $subject)
                     <option value="{{ $subject->SubjectID }}" 
@@ -97,10 +97,10 @@
                     </option>
                 @endforeach
             </select>
-            <small>Select multiple subjects by holding down the Ctrl (windows) / Command (Mac) button.</small>
+            <small>Chọn nhiều môn học bằng cách giữ phím Ctrl (windows) / Command (Mac).</small>
         </div>
 
-        <button type="submit" class="btn btn-primary">Update Education Program</button>
-        <a href="{{ route('department.education_programs.index') }}" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+        <a href="{{ route('department.education_programs.index') }}" class="btn btn-secondary">Trở về</a>
     </form>
 @endsection

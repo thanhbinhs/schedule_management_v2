@@ -33,7 +33,6 @@
             width: 100%;
             object-fit: cover;
             object-position: center;
-            z-index: -1;
         }
 
         .login-form {
@@ -159,10 +158,11 @@
     </style>
 </head>
 <body>
-    <section class="login-page">
+<section class="login-page">
         <div class="login-container">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/1df84fe6fe73ac0294e467b7a4417f807df980fc48c7b728104587c9be37d719?placeholderIfAbsent=true&apiKey=a732e21b3afa4acd8291ecb50549d348" alt="Background" class="background-image" />
-            <form class="login-form" action="/register" method="post">
+            <form class="login-form" action="{{ route('register') }}" method="post">
+                @csrf <!-- Include CSRF token -->
                 <div class="form-content">
                     <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/af10241f5282ffaadf830072a3d5a25658e9776dc566b4d15126a12d96846ebf?placeholderIfAbsent=true&apiKey=a732e21b3afa4acd8291ecb50549d348" alt="Company Logo" class="logo" />
                     
@@ -177,10 +177,10 @@
                         </button>
                     </div>
 
-                    <label for="confirm-password" class="input-label">Xác nhận mật khẩu:</label>
+                    <label for="password_confirmation" class="input-label">Xác nhận mật khẩu:</label>
                     <div class="password-container">
-                        <input type="password" id="confirm-password" name="confirm-password" class="password-input" placeholder="Xác nhận mật khẩu" required />
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirm-password')">
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="password-input" placeholder="Xác nhận mật khẩu" required />
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password_confirmation')">
                             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/c58a786a05ea30c9c075d43dba0ac61cf559a2065fea9130e59a905935445863?placeholderIfAbsent=true&apiKey=a732e21b3afa4acd8291ecb50549d348" alt="Toggle password visibility" />
                         </button>
                     </div>

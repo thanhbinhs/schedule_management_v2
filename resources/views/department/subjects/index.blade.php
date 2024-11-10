@@ -53,22 +53,22 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Subjects</h2>
-        <a href="{{ route('department.subjects.create') }}" class="btn btn-primary">Add Subject</a>
+        <h2>Thông tin môn học</h2>
+        <a href="{{ route('department.subjects.create') }}" class="btn btn-primary">Thêm mới</a>
     </div>
 
     @if($subjects->isEmpty())
-        <p>No subjects found.</p>
+        <p>Không tìm thấy môn học</p>
     @else
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Subject ID</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Credit</th>
-                    <th>Lessons</th>
-                    <th>Actions</th>
+                    <th>ID</th>
+                    <th>Môn học</th>
+                    <th>Khoa trực thuộc</th>
+                    <th>Số tín chỉ</th>
+                    <th>Số tiết</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,12 +80,12 @@
                         <td>{{ $subject->SubjectCredit }}</td>
                         <td>{{ $subject->SubjectLessons }}</td>
                         <td>
-                            <a href="{{ route('department.subjects.edit', $subject->SubjectID) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('department.subjects.edit', $subject->SubjectID) }}" class="btn btn-sm btn-warning">Sửa</a>
                             <form action="{{ route('department.subjects.destroy', $subject->SubjectID) }}" method="POST" class="d-inline" 
                                 onsubmit="return confirm('Are you sure you want to delete this subject?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                             </form>
                         </td>
                     </tr>

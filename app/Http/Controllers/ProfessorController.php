@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Professor;
 use App\Models\Account; // Import model Account
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -16,14 +17,19 @@ class ProfessorController extends Controller
      public function index()
      {
          $departmentID = Auth::user()->username; // Lấy username của tài khoản đăng nhập làm DepartmentID
+         $department = Department::find($departmentID);
+         $departmentName = $department->DepartmentName;
          $professors = Professor::where('DepartmentID', $departmentID)->get();
-         return view('department.professors.index', compact('professors'));
+         return view('department.professors.index', compact('professors', 'departmentName'));
      }
  
      // Hiển thị form tạo mới professor
      public function create()
      {
-         return view('department.professors.create');
+        $departmentID = Auth::user()->username; // Lấy username của tài khoản đăng nhập làm DepartmentID
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+         return view('department.professors.create', compact('departmentName'));
      }
  
      // Lưu thông tin professor mới vào cơ sở dữ liệu
@@ -78,7 +84,10 @@ class ProfessorController extends Controller
     // Hiển thị form chỉnh sửa professor
     public function edit(Professor $professor)
     {
-        return view('department.professors.edit', compact('professor'));
+        $departmentID = Auth::user()->username; // Lấy username của tài khoản đăng nhập làm DepartmentID
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+        return view('department.professors.edit', compact('professor', 'departmentName'));
     }
 
     // Cập nhật thông tin professor trong cơ sở dữ liệu

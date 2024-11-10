@@ -16,12 +16,14 @@ class SubjectController extends Controller
     public function index()
     {
         // Assume you have a `department_id` field in the authenticated user (assuming it's a Department account)
-        $departmentId = auth()->user()->username;
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
     
         // Get subjects that belong to the authenticated department
-        $subjects = Subject::where('DepartmentID', $departmentId)->get();
+        $subjects = Subject::where('DepartmentID', $departmentID)->get();
     
-        return view('department.subjects.index', compact('subjects'));
+        return view('department.subjects.index', compact('subjects', 'departmentName'));
     }
 
     /**
@@ -31,9 +33,11 @@ class SubjectController extends Controller
      */
     public function create()
     {
-        $department = auth()->user()->username;
-        $departments = Department::where('DepartmentID', $department)->get();
-        return view('department.subjects.create', compact('departments'));
+        // Assume you have a `department_id` field in the authenticated user (assuming it's a Department account)
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+        return view('department.subjects.create', compact('department', 'departmentName'));
     }
 
     /**
@@ -71,8 +75,10 @@ class SubjectController extends Controller
      */
     public function edit(Subject $subject)
     {
-        $departments = Department::all();
-        return view('department.subjects.edit', compact('subject', 'departments'));
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+        return view('department.subjects.edit', compact('subject', 'department', 'departmentName'));
     }
 
     /**

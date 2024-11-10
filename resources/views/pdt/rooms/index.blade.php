@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.pdt')
+
+@section('head')
+<!-- Thêm Bootstrap CSS nếu chưa có -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Quản lý Phòng</title>
     <style>
         body {
@@ -78,14 +78,12 @@
             gap: 5px;
         }
     </style>
-</head>
-<body>
+@endsection
+
+@section('content')
     <div class="container">
         <h1>Quản lý Phòng</h1>
-        <!--Return PDTDashboard -->
-        <a href="{{ route('pdt.departments.index') }}" class="btn-secondary">Quay Lại</a>
-
-        <a href="{{ route('pdt.rooms.create') }}" class="btn-primary">Thêm Phòng Mới</a>
+        <a href="{{ route('pdt.rooms.create') }}" class="create-button">Thêm Phòng Mới</a>
         <table>
             <thead>
                 <tr>
@@ -103,8 +101,8 @@
                         <td>{{ $room->floor }}</td>
                         <td>{{ $room->building }}</td>
                         <td>{{ $room->scale }}</td>
-                        <td class="action-btns">
-                            <a href="{{ route('pdt.rooms.edit', $room) }}" class="btn-edit">Sửa</a>
+                        <td class="action-buttons">
+                            <a href="{{ route('pdt.rooms.edit', $room) }}" class="edit-button">Sửa</a>
                             <form action="{{ route('pdt.rooms.destroy', $room) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa phòng này không?')">
                                 @csrf
                                 @method('DELETE')
@@ -116,5 +114,4 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+@endsection

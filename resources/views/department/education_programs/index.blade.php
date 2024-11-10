@@ -53,21 +53,22 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Education Programs</h2>
-        <a href="{{ route('department.education_programs.create') }}" class="btn btn-primary">Add Education Program</a>
+        <h2>Thông tin chương trình đào tạo</h2>
+        <a href="{{ route('department.education_programs.create') }}" class="btn btn-primary">Thêm mới</a>
     </div>
 
     @if($educationPrograms->isEmpty())
-        <p>No education programs found.</p>
+
+        <p>Không tìm thấy chương trình đào tạo</p>
     @else
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Education Program ID</th>
-                    <th>Name</th>
-                    <th>Major</th>
-                    <th>Subjects</th>
-                    <th>Actions</th>
+                    <th>ID</th>
+                    <th>Chương trình đào tạo</th>
+                    <th>Ngành trực thuộc</th>
+                    <th>Môn học</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -92,16 +93,16 @@
                                     @endforeach
                                 </ul>
                             @else
-                                <p>No subjects assigned.</p>
+                                <p>Chưa có môn học</p>
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('department.education_programs.edit', $program->EducationProgramID) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('department.education_programs.edit', $program->EducationProgramID) }}" class="btn btn-sm btn-warning">Sửa</a>
                             <form action="{{ route('department.education_programs.destroy', $program->EducationProgramID) }}" method="POST" class="d-inline" 
                                 onsubmit="return confirm('Are you sure you want to delete this education program?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                             </form>
                         </td>
                     </tr>

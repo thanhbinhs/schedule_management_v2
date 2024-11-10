@@ -32,6 +32,7 @@
     font-size: 0.9em;
     border-left: 3px solid #007bff;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
 }
 
 .session a {
@@ -56,12 +57,12 @@
 <div class="container mt-4">
     <h2>Quản Lý Thời Khóa Biểu Khoa</h2>
 <!-- Quay ve trang truoc-->
-    <a href="{{ route('department.professors.index') }}" class="btn btn-primary">Quay lại</a>
+    <a href="{{ route('department.professors.index') }}" class="btn btn-primary">Trở về</a>
    
 
     <!-- Navigation tháng -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <<a href="{{ route('department.schedules.index', ['month' => $currentDate->copy()->subMonth()->month, 'year' => $currentDate->copy()->subMonth()->year]) }}" class="btn btn-secondary">&laquo; Tháng Trước</a>
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+        <a href="{{ route('department.schedules.index', ['month' => $currentDate->copy()->subMonth()->month, 'year' => $currentDate->copy()->subMonth()->year]) }}" class="btn btn-secondary">&laquo; Tháng Trước</a>
         <h4>{{ $currentDate->format('F Y') }}</h4>
         <a href="{{ route('department.schedules.index', ['month' => $currentDate->copy()->addMonth()->month, 'year' => $currentDate->copy()->addMonth()->year]) }}" class="btn btn-secondary">Tháng Sau &raquo;</a>
     </div>

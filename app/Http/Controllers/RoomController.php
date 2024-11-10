@@ -56,14 +56,7 @@ class RoomController extends Controller
         $validated = $request->validate([
             'scale' => 'required|integer',
         ]);
-        $RoomID = $validated['RoomID'];
-        $parts = explode('-', $RoomID);
-        $building = $parts[0];
-        $floor = substr($parts[1], 0, 1);
-        $floor = (int)$floor;
         Room::where('RoomID', $room->RoomID)->update([
-            'building'=> $building,
-            'floor' => $floor,
             'scale' => $validated['scale'],
         ]);
         return redirect()->route('pdt.rooms.index')->with('success', 'Phòng học đã được cập nhật thành công.');

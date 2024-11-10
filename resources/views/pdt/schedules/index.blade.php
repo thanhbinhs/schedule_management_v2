@@ -33,6 +33,7 @@
         font-size: 0.9em;
         border-left: 3px solid #007bff;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
     }
 
     .session a {
@@ -82,7 +83,7 @@
             <button type="submit" class="btn btn-danger">Xóa Tất Cả Thời Khóa Biểu</button>
         </form>
     </div>
-    <!-- Filter Form -->
+    <!-- Filter Form
     <div class="mb-3">
         <form action="{{ route('pdt.schedules.index') }}" method="GET" class="row g-3">
             <div class="col-md-4">
@@ -113,14 +114,14 @@
             </div>
         </form>
 
-    </div>
+    </div> -->
 
     <!-- Các nút tạo mới -->
     <div class="mb-3">
         @if(empty($calendar))
         <form action="{{ route('pdt.schedules.generate') }}" method="POST">
             @csrf
-            <button type="submit" class="btn btn-success">Tạo Thời Khóa Biểu Tự Động</button>
+            <button type="submit" class="btn btn-success mt-3">Tạo Thời Khóa Biểu Tự Động</button>
         </form>
         @else
         <p>Thời khóa biểu đã được tạo.</p>

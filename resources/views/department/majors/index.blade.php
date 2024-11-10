@@ -53,20 +53,20 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Majors</h2>
-        <a href="{{ route('department.majors.create') }}" class="btn btn-primary">Add Major</a>
+        <h2>Thông tin ngành học</h2>
+        <a href="{{ route('department.majors.create') }}" class="btn btn-primary">Thêm mới</a>
     </div>
 
     @if($majors->isEmpty())
-        <p>No majors found.</p>
+        <p>Không tìm thấy ngành học</p>
     @else
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Major ID</th>
-                    <th>Major Name</th>
-                    <th>Department</th>
-                    <th>Actions</th>
+                    <th>ID</th>
+                    <th>Ngành học</th>
+                    <th>Khoa</th>
+                    <th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -76,12 +76,12 @@
                         <td>{{ $major->MajorName }}</td>
                         <td>{{ $major->department->DepartmentName }}</td>
                         <td>
-                            <a href="{{ route('department.majors.edit', $major->MajorID) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{{ route('department.majors.edit', $major->MajorID) }}" class="btn btn-sm btn-warning">Sửa</a>
                             <form action="{{ route('department.majors.destroy', $major->MajorID) }}" method="POST" class="d-inline" 
                                 onsubmit="return confirm('Are you sure you want to delete this major?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
                             </form>
                         </td>
                     </tr>

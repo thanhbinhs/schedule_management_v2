@@ -52,11 +52,11 @@
 @endsection
 
 @section('content')
-    <h2>Add Subject</h2>
+    <h2>Thêm mới môn học</h2>
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <strong>Đã xảy ra lỗi!</strong>Thông tin bạn nhập vào có vấn đề<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -69,33 +69,30 @@
         @csrf
 
         <div class="mb-3">
-            <label for="SubjectName" class="form-label">Subject Name</label>
+            <label for="SubjectName" class="form-label">Môn học</label>
             <input type="text" name="SubjectName" class="form-control" id="SubjectName" value="{{ old('SubjectName') }}" required>
         </div>
 
         <div class="mb-3">
-            <label for="DepartmentID" class="form-label">Department</label>
+            <label for="DepartmentID" class="form-label">Khoa trực thuộc</label>
             <select name="DepartmentID" id="DepartmentID" class="form-select" required>
-                <option value="">Select Department</option>
-                @foreach($departments as $department)
                     <option value="{{ $department->DepartmentID }}" {{ old('DepartmentID') == $department->DepartmentID ? 'selected' : '' }}>
                         {{ $department->DepartmentName }}
                     </option>
-                @endforeach
             </select>
         </div>
 
         <div class="mb-3">
-            <label for="SubjectCredit" class="form-label">Credit</label>
+            <label for="SubjectCredit" class="form-label">Số tín chỉ</label>
             <input type="number" name="SubjectCredit" class="form-control" id="SubjectCredit" value="{{ old('SubjectCredit') }}" min="0" required>
         </div>
 
         <div class="mb-3">
-            <label for="SubjectLessons" class="form-label">Lessons</label>
+            <label for="SubjectLessons" class="form-label">Số tiết</label>
             <input type="number" name="SubjectLessons" class="form-control" id="SubjectLessons" value="{{ old('SubjectLessons') }}" min="0" required>
         </div>
 
-        <button type="submit" class="btn btn-success">Add Subject</button>
-        <a href="{{ route('department.subjects.index') }}" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-success">Thêm mới</button>
+        <a href="{{ route('department.subjects.index') }}" class="btn btn-secondary">Trở về</a>
     </form>
 @endsection

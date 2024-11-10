@@ -52,11 +52,11 @@
 @endsection
 
 @section('content')
-    <h2>Add Major</h2>
+    <h2>Thêm mới ngành học</h2>
 
     @if ($errors->any())
         <div class="alert alert-danger">
-            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+        <strong>Đã xảy ra lỗi!</strong> Thông tin bạn nhập vào có vấn đề<br><br>
             <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -69,23 +69,21 @@
         @csrf
 
         <div class="mb-3">
-            <label for="MajorName" class="form-label">Major Name</label>
+            <label for="MajorName" class="form-label">Ngành học</label>
             <input type="text" name="MajorName" class="form-control" id="MajorName" value="{{ old('MajorName') }}" required>
         </div>
 
         <div class="mb-3">
-            <label for="DepartmentID" class="form-label">Department</label>
+            <label for="DepartmentID" class="form-label">Khoa trực thuộc</label>
+
             <select name="DepartmentID" id="DepartmentID" class="form-select" required>
-                <option value="">Select Department</option>
-                @foreach($departments as $department)
                     <option value="{{ $department->DepartmentID }}" {{ old('DepartmentID') == $department->DepartmentID ? 'selected' : '' }}>
                         {{ $department->DepartmentName }}
                     </option>
-                @endforeach
             </select>
         </div>
 
-        <button type="submit" class="btn btn-success">Add Major</button>
-        <a href="{{ route('department.majors.index') }}" class="btn btn-secondary">Back</a>
+        <button type="submit" class="btn btn-success">Thêm mới</button>
+        <a href="{{ route('department.majors.index') }}" class="btn btn-secondary">Trở về</a>
     </form>
 @endsection

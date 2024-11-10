@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EducationProgram;
 use App\Models\Major;
 use App\Models\Subject;
+use App\Models\Department;
 use Illuminate\Http\Request;
 
 class EducationProgramController extends Controller
@@ -21,7 +22,9 @@ class EducationProgramController extends Controller
         $educationPrograms = EducationProgram::whereHas('major', function ($query) use ($departmentID) {
             $query->where('DepartmentID', $departmentID);
         })->get();
-        return view('department.education_programs.index', compact('educationPrograms'));
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+        return view('department.education_programs.index', compact('educationPrograms', 'departmentName'));
     }
 
     /**
@@ -31,12 +34,14 @@ class EducationProgramController extends Controller
      */
     public function create()
     {
-        $department = auth()->user()->username;
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
 
-        $majors = Major::where('DepartmentID', $department)->get();
+        $majors = Major::where('DepartmentID', $departmentID)->get();
         // Lấy danh sách Subject có DepartmentID giống với username
-        $subjects = Subject::where('DepartmentID', $department)->get();
-        return view('department.education_programs.create', compact('majors', 'subjects'));
+        $subjects = Subject::where('DepartmentID', $departmentID)->get();
+        return view('department.education_programs.create', compact('majors', 'subjects', 'departmentName'));
     }
 
     /**
@@ -76,13 +81,15 @@ class EducationProgramController extends Controller
      */
     public function edit(EducationProgram $educationProgram)
     {
-        $department = auth()->user()->username;
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
 
-        $majors = Major::where('DepartmentID', $department)->get();
+        $majors = Major::where('DepartmentID', $departmentID)->get();
         // Lấy danh sách Subject có DepartmentID giống với username
-        $subjects = Subject::where('DepartmentID', $department)->get();
+        $subjects = Subject::where('DepartmentID', $departmentID)->get();
         $selectedSubjects = json_decode($educationProgram->SubjectList, true);
-        return view('department.education_programs.edit', compact('educationProgram', 'majors', 'subjects', 'selectedSubjects'));
+        return view('department.education_programs.edit', compact('educationProgram', 'majors', 'subjects', 'selectedSubjects', 'departmentName'));
     }
 
     /**

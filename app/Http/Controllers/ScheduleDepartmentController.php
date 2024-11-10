@@ -6,7 +6,9 @@ use App\Models\Schedule;
 use App\Models\Room;
 use App\Models\Subject;
 use App\Models\Professor;
+use App\Models\Department;
 use Illuminate\Http\Request;
+
 use Carbon\Carbon;
 
 class ScheduleDepartmentController extends Controller
@@ -17,6 +19,8 @@ class ScheduleDepartmentController extends Controller
     public function index(Request $request)
     {
         $departmentId = auth()->user()->username;
+        $department = Department::find($departmentId);
+        $departmentName = $department->DepartmentName;
         // Lọc các lịch học theo khoa đã đăng nhập
         $schedules = Schedule::with(['room', 'subject', 'professor'])
             ->whereHas('subject', function ($query) use ($departmentId) {
@@ -53,7 +57,7 @@ class ScheduleDepartmentController extends Controller
             ];
         }
 
-        return view('department.schedules.index', compact('schedules', 'calendar', 'currentDate', 'daysInMonth', 'startDayOfWeek', 'professors'));
+        return view('department.schedules.index', compact('schedules', 'calendar', 'currentDate', 'daysInMonth', 'startDayOfWeek', 'professors', 'departmentName'));
     }
 
     /**
@@ -61,6 +65,8 @@ class ScheduleDepartmentController extends Controller
      */
     public function create($departmentId)
     {
+        $department = Department::findOrFail($departmentId);
+        $departmentName = $department->DepartmentName;
         $rooms = Room::all();
         $subjects = Subject::where('departmentID', $departmentId)->get();
         $professors = Professor::where('departmentID', $departmentId)->get();
@@ -71,7 +77,7 @@ class ScheduleDepartmentController extends Controller
             4 => '3h45-6h25',
         ];
 
-        return view('department.schedules.create', compact('rooms', 'subjects', 'professors', 'sessions'));
+        return view('department.schedules.create', compact('rooms', 'subjects', 'professors', 'sessions', 'departmentName'));
     }
 
     /**
@@ -80,11 +86,8 @@ class ScheduleDepartmentController extends Controller
     public function edit(Schedule $schedule)
     {
         $departmentId = auth()->user()->username;
-        // Kiểm tra xem thời khóa biểu có thuộc khoa này không
-        // if ($schedule->subject->departmentID !== $departmentId) {
-        //     return redirect()->route('department.schedules.index', ['departmentId' => $departmentId])
-        //         ->with('error', 'Bạn không có quyền chỉnh sửa thời khóa biểu này.');
-        // }
+        $department = Department::find($departmentId);
+        $departmentName = $department->DepartmentName;
                 // Lấy ngày và ca học từ lịch hiện tại
                 $date = $schedule->date;
                 $sessionNumber = $schedule->session_number;
@@ -105,7 +108,7 @@ class ScheduleDepartmentController extends Controller
             4 => '3h45-6h25',
         ];
 
-        return view('department.schedules.edit', compact('schedule', 'rooms', 'subjects', 'professors', 'sessions'));
+        return view('department.schedules.edit', compact('schedule', 'rooms', 'subjects', 'professors', 'sessions', 'departmentName'));
     }
 
     /**

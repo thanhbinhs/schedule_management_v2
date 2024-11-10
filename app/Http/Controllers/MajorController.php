@@ -16,8 +16,10 @@ class MajorController extends Controller
     public function index()
     {
         $majorID = auth()->user()->username;
+        $department = Department::find($majorID);
+        $departmentName = $department->DepartmentName;
         $majors = Major::where('DepartmentID', $majorID)->get();
-        return view('department.majors.index', compact('majors'));
+        return view('department.majors.index', compact('majors', 'departmentName'));
     }
 
     /**
@@ -27,9 +29,10 @@ class MajorController extends Controller
      */
     public function create()
     {
-        $department = auth()->user()->username;
-        $departments = Department::where('DepartmentID', $department)->get();
-        return view('department.majors.create', compact('departments'));
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+        return view('department.majors.create', compact('department', 'departmentName'));
     }
 
     /**
@@ -63,9 +66,10 @@ class MajorController extends Controller
      */
     public function edit(Major $major)
     {
-        $department = auth()->user()->username;
-        $departments = Department::where('DepartmentID', $department)->get();
-        return view('department.majors.edit', compact('major', 'departments'));
+        $departmentID = auth()->user()->username;
+        $department = Department::find($departmentID);
+        $departmentName = $department->DepartmentName;
+        return view('department.majors.edit', compact('major', 'department', 'departmentName'));
     }
 
     /**
