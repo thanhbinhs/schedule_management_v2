@@ -70,7 +70,7 @@
                     <th>Mã Khoa</th>
                     <th>Tên Khoa</th>
                     <th>Địa Chỉ</th>
-                    <th>Leader</th>
+                    <th>Trưởng khoa</th>
                     <th>Hành Động</th>
                 </tr>
             </thead>

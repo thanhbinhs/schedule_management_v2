@@ -189,7 +189,6 @@
             <form class="login-form" action="{{ route('login') }}" method="POST">
                 @csrf
                 <div class="form-content">
-                    <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/af10241f5282ffaadf830072a3d5a25658e9776dc566b4d15126a12d96846ebf?placeholderIfAbsent=true&apiKey=a732e21b3afa4acd8291ecb50549d348" alt="Company Logo" class="logo" />
                     @if(session('success'))
                     <div class="alert alert-success">
                         {{ session('success') }}

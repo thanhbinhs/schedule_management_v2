@@ -10,6 +10,8 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log; // Correct the Log import
+use App\Jobs\GenerateSchedulesJob;
 
 class ScheduleController extends Controller
 {
@@ -18,61 +20,101 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
-        $schedules = Schedule::with(['room', 'subject', 'professor'])->orderBy('date')->orderBy('session_number')->get();
-        // Lấy các tham số lọc từ request
-        $selectedDepartment = $request->input('departmentID');
-        $selectedProfessor = $request->input('professorID');
+        // Validate inputs
+        $validated = $request->validate([
+            'departmentID' => 'nullable|exists:departments,DepartmentID',
+            'professorID' => 'nullable|exists:professors,ProfessorID',
+            'subjectID' => 'nullable|exists:subjects,SubjectID',
+            'month' => 'nullable|integer|min:1|max:12',
+            'year' => 'nullable|integer|min:2000|max:3000',
+        ]);
 
-        // Kiểm tra nếu có môn học chưa được gán lịch học
-    $subjectIdsWithSchedules = Schedule::pluck('subject_id')->unique();
-    $canInsertNewSchedule = Subject::whereNotIn('SubjectID', $subjectIdsWithSchedules)->exists();
+        // Get filter parameters
+        $selectedDepartment = $validated['departmentID'] ?? null;
+        $selectedProfessor = $validated['professorID'] ?? null;
+        $selectedSubject = $validated['subjectID'] ?? null;
+        $month = $validated['month'] ?? Carbon::now()->month;
+        $year = $validated['year'] ?? Carbon::now()->year;
 
-        // Lấy tất cả các Khoa và Giảng viên để hiển thị trong dropdown lọc
+        // Determine if new schedules can be inserted
+        $subjectIdsWithSchedules = Schedule::pluck('subject_id')->unique();
+        $canInsertNewSchedule = Subject::whereNotIn('SubjectID', $subjectIdsWithSchedules)->exists();
+
+        // Fetch all departments
         $departments = Department::all();
-        $professors = Professor::all();
 
-        // Lấy tháng và năm từ request, nếu không có thì dùng tháng và năm hiện tại
-        $month = $request->input('month', Carbon::now()->month);
-        $year = $request->input('year', Carbon::now()->year);
+        // Fetch professors based on selected Department
+        if ($selectedDepartment) {
+            $professors = Professor::where('DepartmentID', $selectedDepartment)->get();
+        } else {
+            $professors = Professor::all();
+        }
 
-        // Tạo một đối tượng Carbon để làm cơ sở
+        // Fetch subjects based on selected Department and Professor
+        if ($selectedDepartment && $selectedProfessor) {
+            // Subjects from the selected Department and taught by the selected Professor
+            $subjects = Subject::where('DepartmentID', $selectedDepartment)
+                ->whereHas('professors', function ($query) use ($selectedProfessor) {
+                    // Specify table name to resolve ambiguity
+                    $query->where('professors.ProfessorID', $selectedProfessor);
+                })
+                ->get();
+        } elseif ($selectedDepartment) {
+            // Subjects from the selected Department
+            $subjects = Subject::where('DepartmentID', $selectedDepartment)->get();
+        } elseif ($selectedProfessor) {
+            // Subjects taught by the selected Professor
+            $subjects = Subject::whereHas('professors', function ($query) use ($selectedProfessor) {
+                // Specify table name to resolve ambiguity
+                $query->where('professors.ProfessorID', $selectedProfessor);
+            })->get();
+        } else {
+            // All subjects
+            $subjects = Subject::all();
+        }
+
+        // Get month and year from request or default to current
         $currentDate = Carbon::create($year, $month, 1);
 
-        // Lấy số ngày trong tháng
+        // Get number of days in the month
         $daysInMonth = $currentDate->daysInMonth;
 
-        // Lấy thông tin ngày đầu tiên và cuối cùng của tháng
+        // Get start and end of the month
         $startOfMonth = $currentDate->copy()->startOfMonth();
         $endOfMonth = $currentDate->copy()->endOfMonth();
 
-        // Xây dựng truy vấn với các tham số lọc
+        // Build the query with filters
         $query = Schedule::with(['room', 'subject', 'professor'])
             ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
             ->orderBy('date')
             ->orderBy('session_number');
 
-        // Áp dụng lọc theo Khoa nếu được chọn
+        // Apply Department filter if selected
         if ($selectedDepartment) {
-            // Lọc theo Khoa thông qua Department của Subject hoặc Department của Professor
             $query->where(function ($q) use ($selectedDepartment) {
-                $q->whereHas('subjects', function ($q) use ($selectedDepartment) {
+                $q->whereHas('subject', function ($q) use ($selectedDepartment) {
                     $q->where('DepartmentID', $selectedDepartment);
                 })
-                    ->orWhereHas('professors', function ($q) use ($selectedDepartment) {
-                        $q->where('DepartmentID', $selectedDepartment);
-                    });
+                ->orWhereHas('professor', function ($q) use ($selectedDepartment) {
+                    $q->where('DepartmentID', $selectedDepartment);
+                });
             });
         }
 
-        // Áp dụng lọc theo Giảng viên nếu được chọn
+        // Apply Professor filter if selected
         if ($selectedProfessor) {
-            $query->where('ProfessorID', $selectedProfessor);
+            $query->where('professor_id', $selectedProfessor);
         }
 
-        // Thực thi truy vấn
+        // Apply Subject filter if selected
+        if ($selectedSubject) {
+            $query->where('subject_id', $selectedSubject);
+        }
+
+        // Execute the query
         $schedules = $query->get();
 
-        // Chuẩn bị dữ liệu lịch học theo ngày
+        // Prepare the calendar data
         $calendar = [];
         foreach ($schedules as $schedule) {
             $date = Carbon::parse($schedule->date)->format('Y-m-d');
@@ -80,9 +122,12 @@ class ScheduleController extends Controller
                 $calendar[$date] = [];
             }
 
+            // Create session time string
+            $sessionTime = $this->getSessionTime($schedule->session_number);
+
             $calendar[$date][] = [
                 'session' => $schedule->session_number,
-                'session_time' => $schedule->session_time, // Sử dụng accessor
+                'session_time' => $sessionTime,
                 'room' => $schedule->room->RoomID,
                 'subject' => $schedule->subject ? $schedule->subject->SubjectName : 'N/A',
                 'professor' => $schedule->professor ? $schedule->professor->ProfessorName : 'N/A',
@@ -91,19 +136,86 @@ class ScheduleController extends Controller
             ];
         }
 
-        // Lấy số thứ trong tuần của ngày đầu tiên để định vị cột bắt đầu
+        // Determine the day of the week for the first day of the month
         $startDayOfWeek = $startOfMonth->dayOfWeek; // 0 (Sunday) - 6 (Saturday)
 
-        // Xây dựng các tham số query
-$queryParams = ['DepartmentID' => $selectedDepartment, 'ProfessorID' => $selectedProfessor];
+        // Return the view with all necessary data
+        return view('pdt.schedules.index', compact(
+            'schedules',
+            'calendar',
+            'currentDate',
+            'startDayOfWeek',
+            'daysInMonth',
+            'departments',
+            'professors',
+            'subjects',
+            'selectedDepartment',
+            'selectedProfessor',
+            'selectedSubject',
+            'canInsertNewSchedule'
+        ));
+    }
 
-// Chuyển hướng nếu cần thiết (chỉ khi điều kiện yêu cầu, hoặc nếu bạn cần thiết lập trạng thái URL)
-if ($request->isMethod('post')) { // Hoặc một điều kiện khác phù hợp
-    $url = route('pdt.schedules.index', $queryParams);
-    return redirect($url);
-}
+    /**
+     * Helper function to get session time based on session number.
+     */
+    private function getSessionTime($session_number)
+    {
+        $sessions = [
+            1 => '6h45-9h25',
+            2 => '9h30-12h10',
+            3 => '13h00-15h40',
+            4 => '15h45-18h25',
+        ];
 
-        return view('pdt.schedules.index', compact('schedules', 'calendar', 'currentDate', 'startDayOfWeek', 'daysInMonth', 'departments', 'professors', 'selectedDepartment', 'selectedProfessor', 'canInsertNewSchedule'));
+        return $sessions[$session_number] ?? '00:00-00:00';
+    }
+
+     /**
+     * Fetch professors based on Department via AJAX.
+     */
+    public function getProfessors(Request $request)
+    {
+        $departmentID = $request->input('departmentID');
+
+        if ($departmentID) {
+            $professors = Professor::where('DepartmentID', $departmentID)->get(['ProfessorID', 'ProfessorName']);
+        } else {
+            $professors = Professor::all(['ProfessorID', 'ProfessorName']);
+        }
+
+        return response()->json(['professors' => $professors]);
+    }
+
+    /**
+     * Fetch subjects based on Department and Professor via AJAX.
+     */
+    public function getSubjects(Request $request)
+    {
+        $departmentID = $request->input('departmentID');
+        $professorID = $request->input('professorID');
+
+        if ($departmentID && $professorID) {
+            // Subjects from the Department taught by the Professor
+            $subjects = Subject::where('DepartmentID', $departmentID)
+                ->whereHas('professors', function ($query) use ($professorID) {
+                    $query->where('ProfessorID', $professorID);
+                })
+                ->get(['SubjectID', 'SubjectName']);
+        } elseif ($departmentID) {
+            // Subjects from the Department
+            $subjects = Subject::where('DepartmentID', $departmentID)->get(['SubjectID', 'SubjectName']);
+        } elseif ($professorID) {
+            // Subjects taught by the Professor
+            $subjects = Subject::whereHas('professors', function ($query) use ($professorID) {
+                $query->where('ProfessorID', $professorID);
+            })->get(['SubjectID', 'SubjectName']);
+        } else {
+            // All subjects
+            $subjects = Subject::all(['SubjectID', 'SubjectName']);
+        }
+
+        return response()->json(['subjects' => $subjects]);
     }
 
     /**
@@ -246,18 +358,18 @@ if ($request->isMethod('post')) { // Hoặc một điều kiện khác phù hợ
             return redirect()->back()->withInput()->with('error', 'Thời khóa biểu cho phòng, ngày và ca học này đã tồn tại.');
         }
 
-            // Kiểm tra xem giáo viên có trùng lịch trong ca học đó không (trừ bản ghi hiện tại)
-    if ($validated['professor_id']) {
-        $existingProfessorSchedule = Schedule::where('professor_id', $validated['professor_id'])
-            ->where('date', $validated['date'])
-            ->where('session_number', $validated['session_number'])
-            ->where('id', '!=', $schedule->id)
-            ->first();
+        // Kiểm tra xem giáo viên có trùng lịch trong ca học đó không (trừ bản ghi hiện tại)
+        if ($validated['professor_id']) {
+            $existingProfessorSchedule = Schedule::where('professor_id', $validated['professor_id'])
+                ->where('date', $validated['date'])
+                ->where('session_number', $validated['session_number'])
+                ->where('id', '!=', $schedule->id)
+                ->first();
 
-        if ($existingProfessorSchedule) {
-            return redirect()->back()->withInput()->with('error', 'Giảng viên này đã có ca học trong thời gian này.');
+            if ($existingProfessorSchedule) {
+                return redirect()->back()->withInput()->with('error', 'Giảng viên này đã có ca học trong thời gian này.');
+            }
         }
-    }
 
         $schedule->update($validated);
 
@@ -276,202 +388,35 @@ if ($request->isMethod('post')) { // Hoặc một điều kiện khác phù hợ
     /**
      * Tạo thời khóa biểu tự động cho tất cả các phòng.
      */
+  /**
+     * Tạo thời khóa biểu tự động cho tất cả các phòng.
+     **/
     public function generate(Request $request)
-{
-    $option = $request->input('option');
-
-    if ($option === 'create_new') {
-        // Xóa toàn bộ lịch cũ
-        Schedule::truncate();
-    } elseif ($option === 'insert_new') {
-        // Kiểm tra xem có môn học mới được thêm vào không
-        $newSubjects = Subject::doesntHave('schedules')->get();
-
-        if ($newSubjects->isEmpty()) {
-            return redirect()->route('pdt.schedules.index')->with('error', 'Không có môn học mới để chèn thêm lịch.');
-        }
-    }
-
-    // Định nghĩa ngày bắt đầu và số ngày cần tạo
-    $startDate = Carbon::create(2024, 12, 1); // 1/12/2024
-    $totalDays = 60; // Số ngày muốn tạo, bạn có thể điều chỉnh
-
-    // Định nghĩa các ca học
-    $sessions = [
-        1 => '6h45-9h25',
-        2 => '9h30-12h10',
-        3 => '1h-3h40',
-        4 => '3h45-6h25',
-    ];
-
-    // Lấy tất cả các phòng
-    $rooms = Room::all();
-
-    // Lấy tất cả các môn học cùng với khoa để dễ dàng gán giáo viên
-    $subjects = Subject::with('department')->get();
-
-    // Lấy danh sách giáo viên cùng khoa với môn học và nhóm theo DepartmentID
-    $professors = Professor::with('department')->get()->groupBy('DepartmentID');
-
-    // Kiểm tra dữ liệu
-    if ($subjects->isEmpty()) {
-        return redirect()->route('pdt.schedules.index')->with('error', 'Không có môn học để tạo lịch.');
-    }
-
-    if ($professors->isEmpty()) {
-        return redirect()->route('pdt.schedules.index')->with('error', 'Không có giáo viên để tạo lịch.');
-    }
-
-    // Tạo thời khóa biểu cho mỗi phòng, mỗi ngày và mỗi ca học
-    DB::transaction(function () use ($rooms, $startDate, $totalDays, $sessions, $subjects, $professors) {
-        for ($i = 0; $i < $totalDays; $i++) {
-            $currentDate = $startDate->copy()->addDays($i);
-            $dayOfWeek = $currentDate->dayOfWeek; // 0 (Sunday) - 6 (Saturday)
-
-            // Chỉ tạo lịch cho các ngày từ thứ 2 đến thứ 7
-            if ($dayOfWeek === Carbon::SUNDAY) {
-                continue; // Bỏ qua Chủ Nhật
-            }
-
-            foreach ($rooms as $room) {
-                foreach ($sessions as $session_number => $session_time) {
-                    // Kiểm tra xem lịch cho phòng, ngày, và ca học đã tồn tại chưa
-                    $existingSchedule = Schedule::where('RoomID', $room->RoomID)
-                        ->where('date', $currentDate->toDateString())
-                        ->where('session_number', $session_number)
-                        ->first();
-
-                    // Nếu đã tồn tại, bỏ qua để tránh trùng lặp
-                    if ($existingSchedule) {
-                        continue;
-                    }
-
-                    // Chọn ngẫu nhiên một môn học
-                    $subject = $subjects->random();
-
-                    // Tìm danh sách giáo viên thuộc cùng khoa với môn học
-                    $department_id = $subject->DepartmentID;
-                    $availableProfessors = $professors->get($department_id);
-
-                    if ($availableProfessors) {
-                        $professor = null;
-
-                        // Tìm giáo viên phù hợp, đảm bảo không dạy quá 3 lớp trong cùng ca học
-                        foreach ($availableProfessors as $potentialProfessor) {
-                            $classesInSession = Schedule::where('professor_id', $potentialProfessor->ProfessorID)
-                                ->where('date', $currentDate->toDateString())
-                                ->where('session_number', $session_number)
-                                ->count();
-
-                            if ($classesInSession < 1) {
-                                $professor = $potentialProfessor;
-                                break;
-                            }
-                        }
-
-                        // Nếu không có giáo viên phù hợp, chuyển sang ca học tiếp theo
-                        if (!$professor) {
-                            continue;
-                        }
-
-                        // Tạo bản ghi thời khóa biểu
-                        Schedule::create([
-                            'RoomID' => $room->RoomID,
-                            'date' => $currentDate->toDateString(),
-                            'session_number' => $session_number,
-                            'subject_id' => $subject->SubjectID,
-                            'professor_id' => $professor->ProfessorID,
-                        ]);
-                    }
-                }
-            }
-        }
-    });
-
-    return redirect()->route('pdt.schedules.index')->with('success', 'Thời khóa biểu đã được tạo tự động thành công.');
-}
-
+    {
+        $option = $request->input('option');
     
+        // Define scheduling period
+        $startDate = Carbon::create(2024, 12, 1); // 1/12/2024
+        $endDate = Carbon::create(2025, 1, 31);   // 31/1/2025
+    
+        // Dispatch the job
+        GenerateSchedulesJob::dispatch($option, $startDate, $endDate);
+    
+        // Optionally, you can provide immediate feedback to the user
+        return redirect()->route('pdt.schedules.index')->with('success', 'Thời khóa biểu đang được tạo. Vui lòng kiểm tra lại sau.');
+    }
     
 
+    /**
+     * Xóa tất cả các thời khóa biểu khỏi cơ sở dữ liệu.
+     */
     public function deleteAll()
-{
-    // Xóa tất cả các bản ghi trong bảng Schedule
-    Schedule::truncate();
+    {
+        // Xóa tất cả các bản ghi trong bảng Schedule
+        Schedule::truncate();
 
-    // Chuyển hướng về trang danh sách thời khóa biểu với thông báo
-    return redirect()->route('pdt.schedules.index')->with('success', 'Tất cả thời khóa biểu đã được xóa thành công.');
-}
-
-// public function indexForDepartment(Request $request, $departmentId)
-// {
-//     // Lọc các lịch học theo khoa đã đăng nhập
-//     $schedules = Schedule::with(['room', 'subject', 'professor'])
-//         ->whereHas('subject', function ($query) use ($departmentId) {
-//             $query->where('departmentID', $departmentId);
-//         })
-//         ->orderBy('date')
-//         ->orderBy('session_number')
-//         ->get();
-
-//     // Thông tin cần cho giao diện như tháng, năm
-//     $month = $request->input('month', Carbon::now()->month);
-//     $year = $request->input('year', Carbon::now()->year);
-//     $currentDate = Carbon::create($year, $month, 1);
-//     $daysInMonth = $currentDate->daysInMonth;
-//     $startDayOfWeek = $currentDate->dayOfWeek;
-
-//     // Lấy danh sách giảng viên của khoa
-//     $professors = Professor::where('departmentID', $departmentId)->get();
-
-//     // Chuẩn bị lịch theo ngày
-//     $calendar = [];
-//     foreach ($schedules as $schedule) {
-//         $date = Carbon::parse($schedule->date)->format('Y-m-d');
-//         if (!isset($calendar[$date])) {
-//             $calendar[$date] = [];
-//         }
-//         $calendar[$date][] = [
-//             'session' => $schedule->session_number,
-//             'room' => $schedule->room->RoomID,
-//             'subject' => $schedule->subject ? $schedule->subject->SubjectName : 'N/A',
-//             'professor' => $schedule->professor ? $schedule->professor->ProfessorName : 'N/A',
-//             'edit_url' => route('department.schedules.edit', $schedule),
-//             'delete_url' => route('department.schedules.destroy', $schedule),
-//         ];
-//     }
-
-//     return view('department.schedules.index', compact('schedules', 'calendar', 'currentDate', 'daysInMonth', 'startDayOfWeek', 'professors'));
-// }
-
-// public function createForDepartment($departmentId)
-// {
-//     $rooms = Room::all();
-//     $subjects = Subject::where('departmentID', $departmentId)->get();
-//     $professors = Professor::where('departmentID', $departmentId)->get();
-//     $sessions = [
-//         1 => '6h45-9h25',
-//         2 => '9h30-12h10',
-//         3 => '1h-3h40',
-//         4 => '3h45-6h25',
-//     ];
-
-//     return view('department.schedules.create', compact('rooms', 'subjects', 'professors', 'sessions'));
-// }
-
-// public function editForDepartment(Schedule $schedule, $departmentId)
-// {
-//     $rooms = Room::all();
-//     $subjects = Subject::where('departmentID', $departmentId)->get();
-//     $professors = Professor::where('departmentID', $departmentId)->get();
-//     $sessions = [
-//         1 => '6h45-9h25',
-//         2 => '9h30-12h10',
-//         3 => '1h-3h40',
-//         4 => '3h45-6h25',
-//     ];
-
-//     return view('department.schedules.edit', compact('schedule', 'rooms', 'subjects', 'professors', 'sessions'));
-// }
+        // Chuyển hướng về trang danh sách thời khóa biểu với thông báo
+        return redirect()->route('pdt.schedules.index')->with('success', 'Tất cả thời khóa biểu đã được xóa thành công.');
+    }
 
 }

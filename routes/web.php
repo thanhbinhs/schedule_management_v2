@@ -37,12 +37,30 @@ Route::middleware(['auth', 'pdt'])->prefix('pdt')->group(function () {
 
     Route::resource('rooms', RoomController::class, ['as' => 'pdt']); // Quản lý phòng học
 
-    // Routes CRUD cho Schedules
-    Route::resource('schedules', ScheduleController::class, ['as' => 'pdt']);
+//     // Routes CRUD cho Schedules
+//     Route::resource('schedules', ScheduleController::class, ['as' => 'pdt']);
 
-    // Route để tạo thời khóa biểu tự động
-    Route::post('schedules/generate', [ScheduleController::class, 'generate'])->name('pdt.schedules.generate');
-    Route::post('/pdt/schedules/deleteAll', [ScheduleController::class, 'deleteAll'])->name('pdt.schedules.deleteAll');
+//     // Route để tạo thời khóa biểu tự động
+//     Route::post('schedules/generate', [ScheduleController::class, 'generate'])->name('pdt.schedules.generate');
+//    // New routes for AJAX requests
+//    Route::get('schedules/getProfessors', [ScheduleController::class, 'getProfessors'])->name('getProfessors');
+//    Route::get('schedules/getSubjects', [ScheduleController::class, 'getSubjects'])->name('getSubjects');  
+//     Route::post('/pdt/schedules/deleteAll', [ScheduleController::class, 'deleteAll'])->name('pdt.schedules.deleteAll');
+});
+
+Route::prefix('pdt/schedules')->name('pdt.schedules.')->group(function () {
+    Route::get('/', [ScheduleController::class, 'index'])->name('index');
+    Route::get('/create', [ScheduleController::class, 'create'])->name('create');
+    Route::post('/store', [ScheduleController::class, 'store'])->name('store');
+    Route::get('/edit/{schedule}', [ScheduleController::class, 'edit'])->name('edit');
+    Route::put('/update/{schedule}', [ScheduleController::class, 'update'])->name('update');
+    Route::delete('/destroy/{schedule}', [ScheduleController::class, 'destroy'])->name('destroy');
+    Route::post('/generate', [ScheduleController::class, 'generate'])->name('generate');
+    Route::post('/deleteAll', [ScheduleController::class, 'deleteAll'])->name('deleteAll');
+
+    // New routes for AJAX requests
+    Route::get('/getProfessors', [ScheduleController::class, 'getProfessors'])->name('getProfessors');
+    Route::get('/getSubjects', [ScheduleController::class, 'getSubjects'])->name('getSubjects');
 });
 
 // Routes dành cho 'department' với middleware 'auth' và 'department'

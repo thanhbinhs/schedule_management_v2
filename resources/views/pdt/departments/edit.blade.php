@@ -80,9 +80,9 @@
     <!-- Leader Department được chọn từ danh sách Professor -->
 
     <div>
-    <label for="LeaderDepartmentID">Leader Department:</label>
+    <label for="LeaderDepartmentID">Trưởng khoa:</label>
     <select id="LeaderDepartmentID" name="LeaderDepartmentID" class="input-field">
-        <option value="">-- Chọn Leader Department --</option>
+        <option value="">-- Chọn Trưởng khoa --</option>
         @foreach ($professors as $professor)
             <option value="{{ $professor->ProfessorID }}" 
                 {{ old('LeaderDepartmentID', $department->LeaderDepartmentID) == $professor->ProfessorID ? 'selected' : '' }}>
@@ -90,7 +90,7 @@
             </option>
         @endforeach
     </select>
-    <small>Giá trị này là tùy chọn và phải là một ProfessorID đã tồn tại.</small>
+    <small>Giá trị này là tùy chọn và phải là một Giảng viên đã tồn tại.</small>
 </div>
 
     <button type="submit" class="create-button">Cập Nhật Khoa</button>

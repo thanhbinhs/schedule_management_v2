@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Professor extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'ProfessorID';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -34,5 +36,11 @@ class Professor extends Model
     public function department()
 {
     return $this->belongsTo(Department::class, 'DepartmentID', 'DepartmentID');
+}
+
+// Define relationship with Subject
+public function subjects()
+{
+    return $this->belongsToMany(Subject::class, 'subject_professor', 'ProfessorID', 'SubjectID');
 }
 }

@@ -57,14 +57,14 @@
     <p><strong>Mã Khoa:</strong> {{ $department->DepartmentID }}</p>
     <p><strong>Tên Khoa:</strong> {{ $department->DepartmentName }}</p>
     <p><strong>Địa Chỉ:</strong> {{ $department->DepartmentAddress }}</p>
-    <p><strong>Leader:</strong>
+    <p><strong>Trưởng khoa:</strong>
         @if($department->leader)
             {{ $department->leader->ProfessorName }}
         @else
             Không có
         @endif
     </p>
-    <p><strong>Số Lượng Major:</strong> {{ $department->majors->count() }}</p>
+    <p><strong>Số Lượng Giảng viên:</strong> {{ $department->majors->count() }}</p>
 
     <a href="{{ route('pdt.departments.edit', $department->DepartmentID) }}" class="edit-button">Sửa</a>
     <a href="{{ route('pdt.departments.index') }}" class="create-button">Quay Lại Danh Sách</a>

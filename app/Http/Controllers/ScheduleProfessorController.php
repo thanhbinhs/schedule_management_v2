@@ -19,6 +19,8 @@ class ScheduleProfessorController extends Controller
     {
         // Get the currently logged-in professor
         $professorID = auth()->user()->username;
+        $professor = Professor::find($professorID);
+
 
         // Get month and year from request, default to current month and year
         $month = $request->input('month', Carbon::now()->month);
@@ -60,7 +62,7 @@ class ScheduleProfessorController extends Controller
         // Get the day of the week for the first day of the month
         $startDayOfWeek = $startOfMonth->dayOfWeek; // 0 (Sunday) - 6 (Saturday)
 
-        return view('professor.schedules.index', compact('calendar','schedules', 'currentDate', 'daysInMonth', 'startDayOfWeek'));
+        return view('professor.schedules.index', compact('calendar','schedules', 'currentDate', 'daysInMonth', 'startDayOfWeek', 'professor'));
     }
 
     /**

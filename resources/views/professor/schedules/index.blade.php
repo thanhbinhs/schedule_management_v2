@@ -53,6 +53,8 @@
 @endsection
 
 @section('content')
+<!-- Hello username -->
+<h2 >Xin chào, {{ $professor->ProfessorName }}</h2>
 <!-- Navigation Tháng -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <a href="{{ route('professor.schedules.index', ['month' => $currentDate->copy()->subMonth()->month, 'year' => $currentDate->copy()->subMonth()->year]) }}" class="btn btn-secondary">&laquo; Tháng Trước</a>

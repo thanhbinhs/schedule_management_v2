@@ -72,6 +72,7 @@
                     <th>Họ và tên</th>
                     <th>Gmail</th>
                     <th>Số điện thoại</th>
+                    <th>Chức danh</th>
                     <th>Hành động</th>
                 </tr>
             </thead>
@@ -82,6 +83,13 @@
                         <td>{{ $professor->ProfessorName }}</td>
                         <td>{{ $professor->ProfessorGmail }}</td>
                         <td>{{ $professor->ProfessorPhone }}</td>
+                        <td>
+                            @if($professor->isLeaderDepartment)
+                                Trưởng khoa
+                            @else
+                                Giảng viên
+                            @endif
+                        </td>
                         <td>
                             <a href="{{ route('department.professors.edit', $professor->ProfessorID) }}" class="btn btn-sm btn-warning">Sửa</a>
                             <form action="{{ route('department.professors.destroy', $professor->ProfessorID) }}" method="POST" class="d-inline" 
