@@ -396,8 +396,8 @@ class ScheduleController extends Controller
         $option = $request->input('option');
     
         // Define scheduling period
-        $startDate = Carbon::create(2024, 12, 1); // 1/12/2024
-        $endDate = Carbon::create(2025, 1, 31);   // 31/1/2025
+        $startDate = Carbon::create(2025, 1, 1); // 1/12/2024
+        $endDate = Carbon::create(2025, 2, 31);   // 31/1/2025
     
         // Dispatch the job
         GenerateSchedulesJob::dispatch($option, $startDate, $endDate);
