@@ -51,8 +51,12 @@ class ScheduleProfessorController extends Controller
             if (!isset($calendar[$date])) {
                 $calendar[$date] = [];
             }
+            // Create session time string
+            $sessionTime = $this->getSessionTime($schedule->session_number);
+
             $calendar[$date][] = [
                 'session' => $schedule->session_number,
+                'session_time'=> $sessionTime,
                 'room' => $schedule->room->RoomID,
                 'subject' => $schedule->subject ? $schedule->subject->SubjectName : 'N/A',
                 'edit_url' => route('professor.schedules.edit', $schedule),
@@ -63,6 +67,18 @@ class ScheduleProfessorController extends Controller
         $startDayOfWeek = $startOfMonth->dayOfWeek; // 0 (Sunday) - 6 (Saturday)
 
         return view('professor.schedules.index', compact('calendar','schedules', 'currentDate', 'daysInMonth', 'startDayOfWeek', 'professor'));
+    }
+
+    private function getSessionTime($session_number)
+    {
+        $sessions = [
+            1 => '6h45-9h25',
+            2 => '9h30-12h10',
+            3 => '13h00-15h40',
+            4 => '15h45-18h25',
+        ];
+
+        return $sessions[$session_number] ?? '00:00-00:00';
     }
 
     /**

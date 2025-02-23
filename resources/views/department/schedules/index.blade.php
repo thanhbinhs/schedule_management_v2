@@ -125,15 +125,19 @@
             color: #555;
         }
         .session-actions {
-            margin-top: 10px;
-            text-align: right;
-        }
-        .session-actions a,
-        .session-actions button {
-            margin-left: 5px;
-            font-size: 0.9rem;
-            padding: 6px 6px;
-        }
+        margin-top: 10px;
+        text-align: right; /* Keep text-align: right if you want buttons aligned to the right */
+        display: flex;        /* Enable Flexbox for session-actions */
+        justify-content: flex-end; /* Align buttons to the right end */
+        align-items: center;     /* Vertically align buttons in the center (optional, but good practice) */
+        gap: 5px;              /* Add a small gap between buttons */
+    }
+    .session-actions a,
+    .session-actions button {
+        margin-left: 0; /* Remove margin-left from individual buttons, gap is used instead */
+        font-size: 0.9rem;
+        /* padding: 6px 6px;  Keep or adjust padding if needed */
+    }
         .text-muted {
             color: #6c757d;
             font-size: 0.95rem;

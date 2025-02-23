@@ -243,7 +243,7 @@
                         <div class="text-content">
                             <h1 class="main-title">Phenikaa Schedule</h1>
                             <p class="subtitle">Ứng dụng xây dựng <br /> thời khóa biểu toàn trường</p>
-                            <a href="/start" class="start-btn">BẮT ĐẦU</a>
+                            <a href="/login" class="start-btn">BẮT ĐẦU</a>
                         </div>
                     </div>
                     <div class="image-column">
